@@ -14,6 +14,7 @@ app.post('/', function (req, res) {
   console.log(req.headers)
   console.log('Hello')
   console.log(req.body)
+  res.sendStatus(200);
  });
 app.listen(port, function () {
  console.log('Listening on ' + port);
