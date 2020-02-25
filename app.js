@@ -8,7 +8,11 @@ app.get('/', function (req, res) {
  res.send(JSON.stringify({ Hello: 'World'}));
 });
 app.post('/', function (req, res) {
-  console.log(req)
+  console.log('Hello')
+  console.log(req.header('x-github-event'))
+  console.log('Hello')
+  console.log(req.headers)
+  console.log('Hello')
  });
 app.listen(port, function () {
  console.log('Listening on ' + port);
