@@ -13,7 +13,7 @@ app.post('/', function (req, res) {
   console.log('Hello')
   console.log(req.headers)
   console.log('Hello')
-  console.log(req)
+  console.log(req.body)
  });
 app.listen(port, function () {
  console.log('Listening on ' + port);
