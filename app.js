@@ -12,7 +12,8 @@ app.post('/', function (req, res) {
   console.log(req.headers)
   console.log(req.body)
 
-  let asanaRef = asana1.match( /(refs#\d+)/)
+  let commitMessage = req.body.head_commit.message
+  let asanaRef = commitMessage.match( /(refs#\d+)/)
   if (asanaRef) {
 
     let asanId = asanaRef[0].split('#')[1]
@@ -27,17 +28,26 @@ app.listen(port, function () {
 });
 
 async function commentAsana(asanId) {
-  client.users.me().then(function(me) {
-    console.log(me);
-  });
+  try {
+    console.log('commentAsana')
 
-  let me = await client.users.me();
-  const userId = user.gid;
-  const workspaceId = user.workspaces[0].gid;
+    let me = await client.users.me();
+    const userId = me.gid;
+    const workspaceId = me.workspaces[0].gid;
+    
+    console.log('Searching Asana Task with id ' + asanId)
+    let task = await client.tasks.findById(asanId)
+    
+    console.log(task)
+    console.log(task.id)
+    console.log(task.assignee.name)
+  } catch(e) {
+    console.log('Error al contactar con Asana')
+    console.log(e.message)
+  }
+  /*
+  task.dispatchPut('/tasks/' + asanId, comments) {
 
-  let task = await client.tasks.findById('asanId')
-
-  console.log(task.id)
-  console.log(task.assignee.name)
-  
+  }
+  */
 }
