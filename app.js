@@ -9,15 +9,15 @@ app.use( express.json());
 
 app.post('/', function (req, res) {
   console.log(req.header('x-github-event'))
-  console.log(req.headers)
-  console.log(req.body)
 
+  const event = req.header('x-github-event')
+  const repoURL = req.body.head_commit.url 
   let commitMessage = req.body.head_commit.message
   let asanaRef = commitMessage.match( /(refs#\d+)/)
   if (asanaRef) {
 
     let asanId = asanaRef[0].split('#')[1]
-    commentAsana(asanId);
+    commentAsana(asanId, event, repoURL);
   }
  
   res.sendStatus(200);
@@ -27,7 +27,7 @@ app.listen(port, function () {
  console.log('Listening on ' + port);
 });
 
-async function commentAsana(asanId) {
+async function commentAsana(asanId, method, repoURL) {
   try {
     console.log('commentAsana')
 
@@ -38,9 +38,12 @@ async function commentAsana(asanId) {
     console.log('Searching Asana Task with id ' + asanId)
     let task = await client.tasks.findById(asanId)
     
-    console.log(task)
-    console.log(task.id)
-    console.log(task.assignee.name)
+    let description = {}
+    if (method === 'push') {
+      description.notes = 'Commit created by Alejandro: ' + repoURL + '\n' + '\n' + task.notes;
+    }
+    client.tasks.dispatchPut('/tasks/' + asanId, description)
+
   } catch(e) {
     console.log('Error al contactar con Asana')
     console.log(e.message)
@@ -51,3 +54,6 @@ async function commentAsana(asanId) {
   }
   */
 }
+
+// /tasks/{task_gid}/stories COMENTARIOS https://developers.asana.com/docs/#get-a-story
+// https://developers.asana.com/docs/#get-a-task UPDATE TASK
