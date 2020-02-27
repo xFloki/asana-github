@@ -1,5 +1,8 @@
 const express = require('express');
 const asana = require('asana');
+import { findTaskId } from './utils/main';
+
+
 const client = asana.Client.create().useAccessToken(process.env.ASANA_KEY);
 const port = process.env.PORT || 3000;
 
@@ -28,10 +31,9 @@ function manageCommit(body) {
   const user = body.sender.login
   const repoURL = body.head_commit.url 
   const commitMessage = body.head_commit.message
-  const asanaRef = commitMessage.match( /(refs#\d+)/)
+  const asanaId = findTaskId(commitMessage);
   
-  if (asanaRef) {
-    const asanId = asanaRef[0].split('#')[1]
+  if (asanaId) {
     const msg = `Commit created by ${user}: ${repoURL}`
     updateDescription(asanId, msg);
   }
@@ -42,9 +44,8 @@ function managePullRequest(body) {
   const action = body.action
   const repoURL = body.pull_request.html_url
   const pullRequestTitle = body.pull_request.title
-  let asanaRef = pullRequestTitle.match( /(refs#\d+)/)
-  if (asanaRef) {
-    const asanId = asanaRef[0].split('#')[1]
+  const asanaId = findTaskId(pullRequestTitle);
+  if (asanaId) {
     const msg = `Pull Request ${action} by ${user}: ${repoURL}`
     updateDescription(asanId, msg);
   }
